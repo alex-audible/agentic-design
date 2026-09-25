@@ -25,3 +25,13 @@ __pycache__/
 
 # Machine-specific connection details (host, key path).
 project.env
+
+# Local co-scientist runtime.
+node_modules/
+.venv-research/
+
+# Local research records; back these up with .agentic-design/ and results/.
+research/campaigns/
+
+# Finder metadata.
+.DS_Store

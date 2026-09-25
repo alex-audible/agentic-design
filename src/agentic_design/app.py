@@ -12,6 +12,7 @@ from .config import load_orchestrator
 from .jobs import JobService
 from .provider import run_agent
 from .tools import ToolRegistry
+from .notebook import Notebook
 
 
 def emit(value):
@@ -41,6 +42,9 @@ def parser():
         command = job.add_parser(action)
         command.add_argument("run_id")
     job.add_parser("list")
+    notebook = groups.add_parser("notebook").add_subparsers(dest="action", required=True)
+    notebook.add_parser("list")
+    notebook.add_parser("show").add_argument("campaign_id")
     agent = groups.add_parser("agent")
     agent.add_argument("prompt", nargs="?")
     agent.add_argument("--prompt-file")
@@ -82,6 +86,9 @@ def main(argv=None):
             emit(service.collect(args.run_id))
         elif args.action == "list":
             emit(service.list())
+    elif args.group == "notebook":
+        notebook = Notebook(Path(cfg["repo_root"]) / cfg["state"].get("notebook_dir", "research/campaigns"))
+        emit(notebook.list() if args.action == "list" else notebook.read(args.campaign_id))
     else:
         if args.prompt and args.prompt_file:
             raise ValueError("use either a prompt argument or --prompt-file, not both")

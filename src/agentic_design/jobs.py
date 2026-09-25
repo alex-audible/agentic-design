@@ -191,6 +191,8 @@ class JobService:
         try:
             with tempfile.TemporaryDirectory() as temp:
                 archive = self._archive(exp, run_id, Path(temp))
+                # Keep the exact small worker/input bundle used for this run.
+                shutil.copyfile(archive, self._manifest_path(run_id).with_name("execution-bundle.tar.gz"))
                 transport.run(["mkdir", "-p", remote_dir])
                 remote_archive = f"{remote_dir}/stage.tar.gz"
                 transport.upload(archive, remote_archive)
@@ -428,8 +430,9 @@ class JobService:
             .read_text()
         )
         request = build_request(snapshot["spec"])
+        first_index = request.seed if request.seed is not None else 0
         expected_stems = {
-            f"{request.name}_{index}" for index in range(request.num_designs)
+            f"{request.name}_{index}" for index in range(first_index, first_index + request.num_designs)
         }
         output_dir = destination / "outputs"
         trbs = {path.stem for path in output_dir.glob("*.trb")}

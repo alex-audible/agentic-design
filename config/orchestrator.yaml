@@ -25,6 +25,7 @@ state:
   results_dir: results
   inputs_dir: data/inputs
   examples_dir: demo-api
+  notebook_dir: research/campaigns
 limits:
   max_designs: 100
   max_agent_submissions: 1

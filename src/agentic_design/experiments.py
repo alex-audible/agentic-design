@@ -80,10 +80,12 @@ class ExperimentStore:
         experiment_id = spec["name"]
         path = self._path(experiment_id)
         input_digest = None
+        input_bytes = None
         request = build_request(spec)
         if request.input_pdb:
             source = self.inputs_root / request.input_pdb
-            input_digest = sha256(source.read_bytes()).hexdigest()
+            input_bytes = source.read_bytes()
+            input_digest = sha256(input_bytes).hexdigest()
         material = {"spec": spec, "input_sha256": input_digest}
         record = {
             "id": experiment_id,
@@ -104,7 +106,7 @@ class ExperimentStore:
         if request.input_pdb:
             snapshot = path.parent / "input" / request.input_pdb
             snapshot.parent.mkdir(parents=True, exist_ok=True)
-            snapshot.write_bytes((self.inputs_root / request.input_pdb).read_bytes())
+            snapshot.write_bytes(input_bytes)
         atomic_json(path, record)
         return record
 

@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "$(dirname "$0")/.venv-research/bin/python" "$(dirname "$0")/scripts/co_scientist.py" "$@"

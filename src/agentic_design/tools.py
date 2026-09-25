@@ -65,6 +65,7 @@ TOOL_SCHEMAS = [
                             "diffuser_T": {"type": "integer"},
                             "input_pdb": {"type": "string"},
                             "hotspot_res": {"type": "string"},
+                            "seed": {"type": "integer"},
                         },
                         "additionalProperties": True,
                     },

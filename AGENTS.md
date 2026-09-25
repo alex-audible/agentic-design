@@ -6,6 +6,20 @@ built on RFdiffusion. Experiments execute on a remote CPU VM.
 **For current status, open tasks, and next steps, read [docs/handoff.md](docs/handoff.md).**
 This file holds only what stays true between sessions.
 
+## Co-scientist interface
+
+`./co-scientist` launches the pinned OpenCode research profile via
+`agents/research.py`. `src/agentic_design/research.py` adds a simple file-based
+notebook to the existing experiment tools. Read [docs/co-scientist.md](docs/co-scientist.md)
+for launch, approval, and replication instructions. Keep this first version simple:
+campaign questions, append-only entries, and a generated Markdown view.
+
+Co-scientist specs require an explicit `seed` (default 0). RFdiffusion's design
+index is also its deterministic seed, so both the runner and collection checks
+must use `seed + i` for output names. Preserve the original input snapshots when
+repeating a saved experiment. Never claim bitwise replication across changed
+software, weights, or hardware.
+
 ## Goals
 
 Build a **reusable framework that automates designing high-quality proteins that

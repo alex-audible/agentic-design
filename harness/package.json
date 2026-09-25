@@ -1,0 +1,8 @@
+{
+  "name": "agentic-design-harness",
+  "private": true,
+  "description": "Pinned OpenCode runtime for the protein-design co-scientist",
+  "dependencies": {
+    "opencode-ai": "1.18.32"
+  }
+}

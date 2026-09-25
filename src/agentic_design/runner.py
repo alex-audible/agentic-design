@@ -23,6 +23,7 @@ class DesignRequest:
     input_pdb: str | None = None
     hotspot_res: str | None = None
     extra: dict = field(default_factory=dict)
+    seed: int | None = None
 
 
 def build_command(
@@ -53,7 +54,17 @@ def build_command(
         cmd.append(f"inference.input_pdb={resolved_input}")
     if req.hotspot_res:
         cmd.append(f"ppi.hotspot_res={req.hotspot_res}")
+    if req.seed is not None:
+        if (isinstance(req.seed, bool) or not isinstance(req.seed, int)
+                or req.seed < 0 or req.seed + req.num_designs > 2**32):
+            raise ValueError("seed range must fit unsigned 32-bit integers")
+        # Upstream RFdiffusion seeds Python, NumPy, and torch with i_des.
+        cmd += ["inference.deterministic=true", f"inference.design_startnum={req.seed}"]
     for k, v in req.extra.items():
+        if req.seed is not None and k.lstrip("+") in ("inference.deterministic", "inference.design_startnum"):
+            if k == "inference.deterministic" and v is True:
+                continue
+            raise ValueError("seed cannot be combined with conflicting randomness overrides")
         if isinstance(v, bool):
             encoded = str(v).lower()
         elif v is None:
@@ -116,7 +127,8 @@ def run_design(
     text = log.read_text()
     designs = summarize_dir(outdir) if proc.returncode == 0 else []
     skipped = text.count("Skipping this design")
-    expected_stems = {f"{req.name}_{index}" for index in range(req.num_designs)}
+    first_index = req.seed if req.seed is not None else 0
+    expected_stems = {f"{req.name}_{index}" for index in range(first_index, first_index + req.num_designs)}
     trbs = {p.stem for p in outdir.glob("*.trb")}
     pdbs = {p.stem for p in outdir.glob("*.pdb")}
     pairs = trbs & pdbs

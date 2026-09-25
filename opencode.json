@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "co-scientist",
+  "share": "disabled",
+  "autoupdate": false,
+  "permission": {
+    "*": "deny",
+    "research_*": "allow",
+    "question": "allow",
+    "webfetch": "allow",
+    "websearch": "allow"
+  },
+  "agent": {
+    "build": { "disable": true },
+    "plan": { "disable": true },
+    "general": { "disable": true },
+    "explore": { "disable": true }
+  }
+}

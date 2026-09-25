@@ -24,6 +24,7 @@ NAMED_KEYS = {
     "diffuser_T",
     "input_pdb",
     "hotspot_res",
+    "seed",
 }
 RESERVED_OVERRIDES = {
     "inference.output_prefix",
@@ -76,6 +77,14 @@ def build_request(spec: dict) -> DesignRequest:
         if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
             raise ValueError(f"{key} must be a positive integer")
     extra = flatten({k: v for k, v in spec.items() if k not in NAMED_KEYS})
+    seed = spec.get("seed")
+    if seed is not None:
+        if (isinstance(seed, bool) or not isinstance(seed, int)
+                or seed < 0 or seed + spec.get("num_designs", 1) > 2**32):
+            raise ValueError("seed range must fit unsigned 32-bit integers")
+        for key, value in extra.items():
+            if key.lstrip("+") == "inference.deterministic" and not (key == "inference.deterministic" and value is True):
+                raise ValueError("seed cannot be combined with conflicting randomness overrides")
     normalized = {key.lstrip("+") for key in extra}
     forbidden = sorted(
         key
@@ -104,6 +113,7 @@ def build_request(spec: dict) -> DesignRequest:
         input_pdb=spec.get("input_pdb"),
         hotspot_res=spec.get("hotspot_res"),
         extra=extra,
+        seed=seed,
     )
 
 

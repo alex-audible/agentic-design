@@ -237,7 +237,8 @@ def test_remote_command_keeps_posix_paths_on_windows_client():
     assert command[1] == "/RF diffusion/scripts/run_inference.py"
 
 
-def test_staged_worker_executes_and_requires_named_pairs(tmp_path):
+@pytest.mark.parametrize("seed", [None, 42])
+def test_staged_worker_executes_and_requires_named_pairs(tmp_path, seed):
     copy_package(tmp_path)
     fake_modules = tmp_path / "fake_modules"
     (fake_modules / "torch").mkdir(parents=True)
@@ -251,7 +252,8 @@ def test_staged_worker_executes_and_requires_named_pairs(tmp_path):
         "from pathlib import Path\n"
         "args=dict(x.split('=',1) for x in sys.argv[1:])\n"
         "prefix=Path(args['inference.output_prefix'])\n"
-        "for i in range(int(args['inference.num_designs'])):\n"
+        "start=int(args.get('inference.design_startnum',0))\n"
+        "for i in range(start,start+int(args['inference.num_designs'])):\n"
         " p=Path(str(prefix)+'_'+str(i)); p.with_suffix('.pdb').write_text('END\\n'); "
         " pickle.dump({'mask_1d':[True]*4,'config':{'contigmap':{'contigs':args['contigmap.contigs']}}},p.with_suffix('.trb').open('wb'))\n"
     )
@@ -265,7 +267,7 @@ def test_staged_worker_executes_and_requires_named_pairs(tmp_path):
     )
     service = JobService(cfg, FakeTransport)
     experiment = service.store.save(
-        {"name": "smoke", "contigs": "[4-4]", "num_designs": 1}
+        {"name": "smoke", "contigs": "[4-4]", "num_designs": 1, "seed": seed}
     )
     staging = tmp_path / "staging"
     staging.mkdir()
@@ -290,7 +292,10 @@ def test_staged_worker_executes_and_requires_named_pairs(tmp_path):
     assert json.loads((job / "worker-status.json").read_text())["pid"] > 0
     result = json.loads((job / "result.json").read_text())
     assert result["state"] == "completed" and result["success"] is True
-    assert (job / "outputs" / "smoke_0.trb").exists()
+    assert (job / "outputs" / f"smoke_{seed or 0}.trb").exists()
+    run_id = "worker-test"
+    atomic_json(service._manifest_path(run_id).with_name("experiment.json"), experiment)
+    assert len(service._validate_collection(job, {"run_id": run_id})) == 1
 
 
 class NetworkFailureTransport:
