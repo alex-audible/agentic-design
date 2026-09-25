@@ -43,7 +43,10 @@ Compilation and `git diff --check` also passed. MCP is constrained to `<2` becau
 the existing server uses the v1 FastMCP API. The co-scientist changes are being
 shared on `agentic-design-api` through
 [upstream pull request #1](https://github.com/KristinaGagalova/agentic-design/pull/1).
-Client CI installs the MCP extra so the stdio integration test runs on Windows/Linux.
+GitHub Actions automation was removed at the researcher's request. Run tests
+locally with `python -m pytest tests -q` after installing `.[mcp,test]`;
+the optional OpenCode fixture uses `RUN_OPENCODE_SMOKE=1`. The notebook and
+experiment service do not depend on GitHub Actions.
 
 The main README now contains detailed fresh-machine installation instructions
 for macOS/Linux/WSL and Windows cmd, model and SSH configuration, no-key fixture

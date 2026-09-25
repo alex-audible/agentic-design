@@ -86,9 +86,8 @@ npm --version
 ssh -V
 ```
 
-The Windows blocks below are for **cmd**, not PowerShell. The repository includes
-Windows/Linux CI configuration; this co-scientist installation was exercised on
-macOS, not on a native Windows machine.
+The Windows blocks below are for **cmd**, not PowerShell. This co-scientist
+installation was exercised on macOS, not on a native Windows machine.
 
 ## 3. Install the project and pinned OpenCode runtime
 
@@ -147,6 +146,9 @@ python -m pytest tests -q
 An empty notebook list (`[]`) is normal on a fresh installation. The suite uses
 local fixtures and never submits a real RFdiffusion job. The optional OpenCode
 end-to-end test is skipped unless explicitly enabled.
+
+Tests run on demand with the command above. There is no GitHub Actions workflow;
+pushing code or updating a pull request does not automatically run this project's tests.
 
 Check OpenCode's connection to the local Python tools:
 
